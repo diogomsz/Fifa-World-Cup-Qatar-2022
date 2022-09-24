@@ -9,4 +9,4 @@
 > Diogo Martins de Assis
 > Lucas de Carvalho Barbosa
 ## Tecnologias Utilizadas
-![My Skills](https://skillicons.dev/icons?i=java,eclipse)[(https://skillicons.dev)]
+![My Skills](https://skillicons.dev/icons?i=java,eclipse)
