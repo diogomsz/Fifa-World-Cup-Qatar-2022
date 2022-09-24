@@ -1,4 +1,4 @@
-# Fifa-World-Cup-Qatar-2022
+# Prática: Programação Orientada a Objetos - Jogos da Copa do Mundo
 
 ## Instituição
 > Pontifícia Universidade Católica de Minas Gerais (PUC Minas)
