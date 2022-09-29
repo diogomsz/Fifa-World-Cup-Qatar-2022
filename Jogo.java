@@ -10,74 +10,77 @@ public class Jogo {
 	private String local;
 	
 	public static void main(String[] args) {
-
-		String linha = MyIO.readLine();
+		MyIO.setCharset("UTF-8");
 		
 		Jogo[] vetorJogo = new Jogo[400];
+		String linha = ler();
 				
 		for(int i = 0; i < vetorJogo.length; i++) {
 			
-			if(linha == "FIM") {
+			if(linha.equals("FIM")) {
 				break;
 			}
 			
-			System.out.println(linha);
-			
 			String[] vetorDados = linha.split("#");
-			Jogo jogo = new Jogo();
 			
-			jogo.setAno(Integer.parseInt(vetorDados[0]));
-			jogo.setEtapa(vetorDados[1]);
-			jogo.setDia(Integer.parseInt(vetorDados[2]));
-			jogo.setMes(Integer.parseInt(vetorDados[3]));
-			jogo.setSelecao1(vetorDados[4]);
-			jogo.setPlacarSelecao1(Integer.parseInt(vetorDados[5]));
-			jogo.setPlacarSelecao2(Integer.parseInt(vetorDados[6]));
-			jogo.setSelecao2(vetorDados[7]);
-			jogo.setLocal(vetorDados[8]);
+			int ano = Integer.parseInt(vetorDados[0]);
+			String etapa = vetorDados[1];
+			int dia = Integer.parseInt(vetorDados[2]);
+			int mes = Integer.parseInt(vetorDados[3]);
+			String selecao1 = vetorDados[4];
+			int placar1 = Integer.parseInt(vetorDados[5]);
+			int placar2 = Integer.parseInt(vetorDados[6]);
+			String selecao2 = vetorDados[7];
+			String local = vetorDados[8];
 			
-			vetorJogo[i] = jogo;
-			
-			linha = MyIO.readLine();
+			vetorJogo[i] = new Jogo(dia, mes, ano, etapa, selecao1, selecao2, placar1, placar2, local);			
+			linha = ler();
 		}
 		
-		String quantidadeDeLinhas = MyIO.readLine();
-		int linhas = Integer.parseInt(quantidadeDeLinhas);
+		int linhas = MyIO.readInt();
 		int i = 0;
 		
-		System.out.println(vetorJogo.length);
+		String[] vetorPesquisa = new String[linhas];
 		
 		while(i < linhas) {
-			String linhaPesquisa = MyIO.readLine();
-			String[] vetorPesquisa = linhaPesquisa.split(";");
-			
-			String data = vetorPesquisa[0];
-			String pais = vetorPesquisa[1];
-			
-			
-			String[] vetorData = data.split("/");
-			
-			int auxDia = Integer.parseInt(vetorData[0]);
-			int auxMes = Integer.parseInt(vetorData[1]);
-			int auxAno = Integer.parseInt(vetorData[2]);
-		
-			for(int j = 0; j < vetorJogo.length; j++) {
-				
-				if(auxDia == vetorJogo[j].getDia() && auxMes == vetorJogo[j].getMes() && auxAno == vetorJogo[j].getAno() && pais == vetorJogo[i].getSelecao1()) {
-					vetorJogo[i].imprimir();
-					
-					// PAREI AQUI:
-					//* PROBLEMA, NAO ESTA IMPRIMINDO OS DADOS DOS JOGOS
-				}
-			}
-			
+			String linhaPesquisa = ler();
+			vetorPesquisa[i] = linhaPesquisa;
 			i++;
 		}
 		
+		for(String pesquisa : vetorPesquisa) {
+			for(Jogo item : vetorJogo) {
+				String[] dadosPesquisa = pesquisa.split("[;/]+");
+				
+				int dia = Integer.parseInt(dadosPesquisa[0]);
+				int mes = Integer.parseInt(dadosPesquisa[1]);
+				int ano = Integer.parseInt(dadosPesquisa[2]);
+				String pais = dadosPesquisa[3];
+				
+				boolean valorPais = item.selecao1.equals(pais);
+				boolean valorDia = item.dia == dia;
+				boolean valorMes = item.mes == mes;
+				boolean valorAno = item.ano == ano;
+				
+				if(valorPais) {
+					if(valorAno && valorMes && valorDia) {						
+						item.imprimir();
+					}
+				}
+			}
+		}
 	}
 	
-	public Jogo() {
-		
+	public Jogo(int dia, int mes, int ano, String etapa, String selecao1, String selecao2, int placarSelecao1, int placarSelecao2, String local) {
+		this.dia = dia;
+		this.mes = mes;
+		this.ano = ano;
+		this.etapa = etapa;
+		this.selecao1 = selecao1;
+		this.selecao2 = selecao2;
+		this.placarSelecao1 = placarSelecao1;
+		this.placarSelecao2 = placarSelecao2;
+		this.local = local;
 	}
 	
 	public int getDia() {
@@ -143,19 +146,18 @@ public class Jogo {
 		this.local = local;
 	}
 	
-	public void clone1() {
-		// SER� IMPLEMENTADO FUTURAMENTE
+	public Jogo clone(Jogo jogo) {
+		return jogo;
 	}
 	
-	public void ler() {		
-		
+	public static String ler() {		
+		String linha = MyIO.readLine();
+		return linha;
 	}
 	
 	public void imprimir() {
-		
 		System.out.println("[COPA "+ getAno() +"] [" + getEtapa() + "] "
 				+ "[" + getDia() + "/" + getMes() + "] [" + getSelecao1() + " (" + getPlacarSelecao1() + ") "
 				+ "x" + " (" + getPlacarSelecao2() + ") " + getSelecao2() + "] [" + getLocal() + "]");
-		
 	}
 }
