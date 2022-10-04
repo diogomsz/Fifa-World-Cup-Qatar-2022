@@ -12,64 +12,7 @@ public class Jogo {
 	public static void main(String[] args) {
 		MyIO.setCharset("UTF-8");
 		
-		Jogo[] vetorJogo = new Jogo[400];
-		String linha = ler();
-				
-		for(int i = 0; i < vetorJogo.length; i++) {
-			
-			if(linha.equals("FIM")) {
-				break;
-			}
-			
-			String[] vetorDados = linha.split("#");
-			
-			int ano = Integer.parseInt(vetorDados[0]);
-			String etapa = vetorDados[1];
-			int dia = Integer.parseInt(vetorDados[2]);
-			int mes = Integer.parseInt(vetorDados[3]);
-			String selecao1 = vetorDados[4];
-			int placar1 = Integer.parseInt(vetorDados[5]);
-			int placar2 = Integer.parseInt(vetorDados[6]);
-			String selecao2 = vetorDados[7];
-			String local = vetorDados[8];
-			
-			vetorJogo[i] = new Jogo(dia, mes, ano, etapa, selecao1, selecao2, placar1, placar2, local);			
-			linha = ler();
-		}
-		
-		int linhas = MyIO.readInt();
-		int x = 0;
-		
-		String[] vetorPesquisa = new String[linhas];
-		
-		while(x < linhas) {
-			String linhaPesquisa = ler();
-			
-			if(!linhaPesquisa.equals(" ")) {				
-				vetorPesquisa[x] = linhaPesquisa;
-				x++;
-			}
-		}
-		
-		for(int i = 0; i < vetorPesquisa.length; i++) {
-			for(int j = 0; j < vetorJogo.length; j++) {
-				String[] dadosPesquisa = vetorPesquisa[i].split("[;/]+");
-				
-				int dia = Integer.parseInt(dadosPesquisa[0]);
-				int mes = Integer.parseInt(dadosPesquisa[1]);
-				int ano = Integer.parseInt(dadosPesquisa[2]);
-				String pais = dadosPesquisa[3];
-				
-				boolean valorPais = vetorJogo[j].selecao1.equals(pais);
-				boolean valorDia = vetorJogo[j].dia == dia;
-				boolean valorMes = vetorJogo[j].mes == mes;
-				boolean valorAno = vetorJogo[j].ano == ano;
-				
-				if(valorPais && valorAno && valorMes && valorDia) {						
-					vetorJogo[j].imprimir();
-				}
-			}
-		}
+		ler();
 	}
 	
 	public Jogo(int dia, int mes, int ano, String etapa, String selecao1, String selecao2, int placarSelecao1, int placarSelecao2, String local) {
@@ -151,22 +94,71 @@ public class Jogo {
 		return new Jogo(this.dia, this.mes, this.ano, this.etapa, this.selecao1, this.selecao2, this.placarSelecao1, this.placarSelecao2, this.local);
 	}
 	
-	public static String ler() {
-		// Leitura da entrada padrão
-		int quantidadeDeLinhas = MyIO.readInt();
-		String[] strDados = new String[quantidadeDeLinhas];
+	public static void ler() {
 		
-		String linha = MyIO.readLine();
+		/*
+		 * CORRIGIR PROBLEMA DE NULLPOINTEREXCEPTION
+		 * Exception in thread "main" java.lang.NullPointerException: Cannot invoke "Jogo.imprimir()" because "jogo" is null
+		 * at Jogo.ler(Jogo.java:152)
+		 * at Jogo.main(Jogo.java:15)
+		 * */
+		
+		int quantidadeDeLinhas = MyIO.readInt();
+		String[] vetorPesquisa = new String[quantidadeDeLinhas];
+		
+		String linha;
 		
 		int i = 0;
-		while(i < strDados.length) {
-			strDados[i] = linha;
+		while(i < vetorPesquisa.length) {
 			linha = MyIO.readLine();
+			vetorPesquisa[i] = linha;
 			i++;
 		}
 		
-		// for() --> parei neste for
-		return "";
+		String nomeArquivo = "tmp/partidas.txt";
+		
+		ArquivoTextoLeitura arquivoPartida = new ArquivoTextoLeitura(nomeArquivo);
+		Jogo[] vetorObjeto = new Jogo[vetorPesquisa.length];
+		
+		int j = 0;
+		
+		for(int z = 0; z < vetorPesquisa.length; z++) {
+			String linhaArquivo = arquivoPartida.ler();
+			String dadosDaPesquisa[] = vetorPesquisa[z].split("[;/]+");
+			
+			int diaPesquisa = Integer.parseInt(dadosDaPesquisa[0]);
+			int mesPesquisa = Integer.parseInt(dadosDaPesquisa[1]);
+			int anoPesquisa = Integer.parseInt(dadosDaPesquisa[2]);
+			String selecaoPesquisa = dadosDaPesquisa[3];
+			
+			while(linhaArquivo != null) {
+				String[] dados = linhaArquivo.split("#");
+				
+				int ano = Integer.parseInt(dados[0]);
+				String etapa = dados[1];
+				int dia = Integer.parseInt(dados[2]);
+				int mes = Integer.parseInt(dados[3]);
+				String selecao1 = dados[4];
+				int placar1 = Integer.parseInt(dados[5]);
+				int placar2 = Integer.parseInt(dados[6]);
+				String selecao2 = dados[7];
+				String local = dados[8];
+				
+				
+				if(ano == anoPesquisa && dia == diaPesquisa && mes == mesPesquisa) {
+					if(selecao1.equals(selecaoPesquisa)) {						
+						vetorObjeto[j] = new Jogo(dia, mes, ano, etapa, selecao1, selecao2, placar1, placar2, local);
+						j++;
+					}
+				}
+				
+				linhaArquivo = arquivoPartida.ler();
+			}
+		}
+		
+		for(Jogo jogo : vetorObjeto) {
+			jogo.imprimir();
+		}
 	}
 	
 	public void imprimir() {
