@@ -12,7 +12,10 @@ public class Jogo {
 	public static void main(String[] args) {
 		MyIO.setCharset("UTF-8");
 		
-		ler();
+		Jogo[] vetor = ler();
+		for(Jogo jogo : vetor) {
+			jogo.imprimir();
+		}
 	}
 	
 	public Jogo(int dia, int mes, int ano, String etapa, String selecao1, String selecao2, int placarSelecao1, int placarSelecao2, String local) {
@@ -94,7 +97,7 @@ public class Jogo {
 		return new Jogo(this.dia, this.mes, this.ano, this.etapa, this.selecao1, this.selecao2, this.placarSelecao1, this.placarSelecao2, this.local);
 	}
 	
-	public static void ler() {
+	public static Jogo[] ler() {
 		// Contando a quantidade de linhas de um arquivos
 		ArquivoTextoLeitura fileReadCount = new ArquivoTextoLeitura("tmp/partidas.txt");
 		int quantidadeLinha = 0;
@@ -135,6 +138,8 @@ public class Jogo {
 		String[] dadosPesquisa;
 		String linhaPesquisa;
 		
+		Jogo[] vetorResultado = new Jogo[quantidadeDePesquisa];
+		
 		int j = 0;
 		while(j < quantidadeDePesquisa) {
 			linhaPesquisa = MyIO.readLine();
@@ -148,19 +153,14 @@ public class Jogo {
 			for(int indice = 0; indice < vetorPartida.length; indice++) {
 				if(dia == vetorPartida[indice].getDia() && mes == vetorPartida[indice].getMes()
 						&& ano == vetorPartida[indice].getAno() && selecao1.equals(vetorPartida[indice].getSelecao1())) {
-					vetorPartida[indice].imprimir();
+					vetorResultado[j] = vetorPartida[indice];
 				}
 			}
 			
 			j++;
 		}
 		
-		/*
-		// Mostrar saida
-		for(Jogo partida : vetorPartida) {
-			partida.imprimir();
-		}
-		*/
+		return vetorResultado;
 	}
 	
 	
