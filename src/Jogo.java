@@ -95,71 +95,74 @@ public class Jogo {
 	}
 	
 	public static void ler() {
+		// Contando a quantidade de linhas de um arquivos
+		ArquivoTextoLeitura fileReadCount = new ArquivoTextoLeitura("tmp/partidas.txt");
+		int quantidadeLinha = 0;
 		
-		/*
-		 * CORRIGIR PROBLEMA DE NULLPOINTEREXCEPTION
-		 * Exception in thread "main" java.lang.NullPointerException: Cannot invoke "Jogo.imprimir()" because "jogo" is null
-		 * at Jogo.ler(Jogo.java:152)
-		 * at Jogo.main(Jogo.java:15)
-		 * */
+		String linhaContar = fileReadCount.ler();
+		while(linhaContar != null) {
+			quantidadeLinha++;
+			linhaContar = fileReadCount.ler();
+		}
 		
-		int quantidadeDeLinhas = MyIO.readInt();
-		String[] vetorPesquisa = new String[quantidadeDeLinhas];
-		
-		String linha;
+		// Preenchendo um vetor de objetos com os dados do arquivo
+		String[] dadosArquivo;
+		Jogo[] vetorPartida = new Jogo[quantidadeLinha];
+		ArquivoTextoLeitura fileReadData = new ArquivoTextoLeitura("tmp/partidas.txt");
 		
 		int i = 0;
-		while(i < vetorPesquisa.length) {
-			linha = MyIO.readLine();
-			vetorPesquisa[i] = linha;
+		String linhaDado = fileReadData.ler();
+		while(linhaDado != null) {
+			dadosArquivo = linhaDado.split("#");
+			
+			int ano = Integer.parseInt(dadosArquivo[0]);
+			String etapa = dadosArquivo[1];
+			int dia = Integer.parseInt(dadosArquivo[2]);
+			int mes = Integer.parseInt(dadosArquivo[3]);
+			String selecao1 = dadosArquivo[4];
+			int placarSelecao1 = Integer.parseInt(dadosArquivo[5]);
+			int placarSelecao2 = Integer.parseInt(dadosArquivo[6]);
+			String selecao2 = dadosArquivo[7];
+			String local = dadosArquivo[8];
+			
+			vetorPartida[i] = new Jogo(dia, mes, ano, etapa, selecao1, selecao2, placarSelecao1, placarSelecao2, local);
+			linhaDado = fileReadData.ler();
 			i++;
 		}
 		
-		String nomeArquivo = "tmp/partidas.txt";
-		
-		ArquivoTextoLeitura arquivoPartida = new ArquivoTextoLeitura(nomeArquivo);
-		Jogo[] vetorObjeto = new Jogo[vetorPesquisa.length];
+		// Lendo a entrada padrao
+		int quantidadeDePesquisa = MyIO.readInt();
+		String[] dadosPesquisa;
+		String linhaPesquisa;
 		
 		int j = 0;
-		
-		for(int z = 0; z < vetorPesquisa.length; z++) {
-			String linhaArquivo = arquivoPartida.ler();
-			String dadosDaPesquisa[] = vetorPesquisa[z].split("[;/]+");
+		while(j < quantidadeDePesquisa) {
+			linhaPesquisa = MyIO.readLine();
+			dadosPesquisa = linhaPesquisa.split("[;/]+");
 			
-			int diaPesquisa = Integer.parseInt(dadosDaPesquisa[0]);
-			int mesPesquisa = Integer.parseInt(dadosDaPesquisa[1]);
-			int anoPesquisa = Integer.parseInt(dadosDaPesquisa[2]);
-			String selecaoPesquisa = dadosDaPesquisa[3];
+			int dia = Integer.parseInt(dadosPesquisa[0]);
+			int mes = Integer.parseInt(dadosPesquisa[1]);
+			int ano = Integer.parseInt(dadosPesquisa[2]);
+			String selecao1 = dadosPesquisa[3];
 			
-			while(linhaArquivo != null) {
-				String[] dados = linhaArquivo.split("#");
-				
-				int ano = Integer.parseInt(dados[0]);
-				String etapa = dados[1];
-				int dia = Integer.parseInt(dados[2]);
-				int mes = Integer.parseInt(dados[3]);
-				String selecao1 = dados[4];
-				int placar1 = Integer.parseInt(dados[5]);
-				int placar2 = Integer.parseInt(dados[6]);
-				String selecao2 = dados[7];
-				String local = dados[8];
-				
-				
-				if(ano == anoPesquisa && dia == diaPesquisa && mes == mesPesquisa) {
-					if(selecao1.equals(selecaoPesquisa)) {						
-						vetorObjeto[j] = new Jogo(dia, mes, ano, etapa, selecao1, selecao2, placar1, placar2, local);
-						j++;
-					}
+			for(int indice = 0; indice < vetorPartida.length; indice++) {
+				if(dia == vetorPartida[indice].getDia() && mes == vetorPartida[indice].getMes()
+						&& ano == vetorPartida[indice].getAno() && selecao1.equals(vetorPartida[indice].getSelecao1())) {
+					vetorPartida[indice].imprimir();
 				}
-				
-				linhaArquivo = arquivoPartida.ler();
 			}
+			
+			j++;
 		}
 		
-		for(Jogo jogo : vetorObjeto) {
-			jogo.imprimir();
+		/*
+		// Mostrar saida
+		for(Jogo partida : vetorPartida) {
+			partida.imprimir();
 		}
+		*/
 	}
+	
 	
 	public void imprimir() {
 		System.out.println("[COPA "+ getAno() +"] [" + getEtapa() + "] "
