@@ -1,3 +1,50 @@
+import java.io.*;
+
+class ArquivoTextoLeitura {
+
+	private BufferedReader entrada;
+	
+	ArquivoTextoLeitura(String nomeArquivo) {	
+		
+		try {
+			entrada = new BufferedReader(new FileReader(nomeArquivo));
+		}
+		catch (FileNotFoundException excecao) {
+			System.out.println("Arquivo nao encontrado");
+		}
+	}
+	
+	public void fecharArquivo() {
+		
+		try {
+			entrada.close();
+		}
+		catch (IOException excecao) {
+			System.out.println("Erro no fechamento do arquivo de leitura: " + excecao);	
+		}
+	}
+	
+	@SuppressWarnings("finally")
+	public String ler() {
+		
+		String textoEntrada = null;
+		
+		try {
+			textoEntrada = entrada.readLine();
+		}
+		catch (EOFException excecao) { //Excecao de final de arquivo.
+			textoEntrada = null;
+		}
+		catch (IOException excecao) {
+			System.out.println("Erro de leitura: " + excecao);
+			textoEntrada = null;
+		}
+		finally {
+			return textoEntrada;
+		}
+	}
+}
+
 public class Jogo {
 	private int dia;
 	private int mes;
@@ -11,10 +58,10 @@ public class Jogo {
 	
 	public static void main(String[] args) {
 		MyIO.setCharset("UTF-8");
-		
+				
 		Jogo[] vetor = ler();
-		for(Jogo jogo : vetor) {
-			jogo.imprimir();
+		for(int i = 0; i < vetor.length; i++) {
+			vetor[i].imprimir();
 		}
 	}
 	
@@ -98,23 +145,27 @@ public class Jogo {
 	}
 	
 	public static Jogo[] ler() {
-		// Contando a quantidade de linhas de um arquivos
-		ArquivoTextoLeitura fileReadCount = new ArquivoTextoLeitura("tmp/partidas.txt");
+
+		String arquivo = "/tmp/partidas.txt";
+		ArquivoTextoLeitura contarLinha = new ArquivoTextoLeitura(arquivo);
+		ArquivoTextoLeitura arquivoEntrada = new ArquivoTextoLeitura(arquivo);
+		
 		int quantidadeLinha = 0;
 		
-		String linhaContar = fileReadCount.ler();
+		String linhaContar = contarLinha.ler();
 		while(linhaContar != null) {
 			quantidadeLinha++;
-			linhaContar = fileReadCount.ler();
+			linhaContar = contarLinha.ler();
 		}
+		
+		contarLinha.fecharArquivo();
 		
 		// Preenchendo um vetor de objetos com os dados do arquivo
 		String[] dadosArquivo;
 		Jogo[] vetorPartida = new Jogo[quantidadeLinha];
-		ArquivoTextoLeitura fileReadData = new ArquivoTextoLeitura("tmp/partidas.txt");
 		
 		int i = 0;
-		String linhaDado = fileReadData.ler();
+		String linhaDado = arquivoEntrada.ler();
 		while(linhaDado != null) {
 			dadosArquivo = linhaDado.split("#");
 			
@@ -129,9 +180,11 @@ public class Jogo {
 			String local = dadosArquivo[8];
 			
 			vetorPartida[i] = new Jogo(dia, mes, ano, etapa, selecao1, selecao2, placarSelecao1, placarSelecao2, local);
-			linhaDado = fileReadData.ler();
+			linhaDado = arquivoEntrada.ler();
 			i++;
 		}
+		
+		arquivoEntrada.fecharArquivo();
 		
 		// Lendo a entrada padrao
 		int quantidadeDePesquisa = MyIO.readInt();
@@ -170,3 +223,4 @@ public class Jogo {
 				+ "x" + " (" + getPlacarSelecao2() + ") " + getSelecao2() + "] [" + getLocal() + "]");
 	}
 }
+
