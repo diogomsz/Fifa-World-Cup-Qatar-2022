@@ -4,40 +4,38 @@ public class Aplicacao {
 
     public static void main(String[] args) throws Exception {
         MyIO.setCharset("UTF-8");
-        String arquivo = "tmp/partidas.txt";
+        String arquivo = "/tmp/partidas.txt";
 
         Jogo j1 = new Jogo();
         Jogo[] vetorPartida = j1.lerArquivo(arquivo);
         String[] vetorPesquisa = j1.ler();
 
-        PilhaDinamica pilhaDinamicaDeJogos = new PilhaDinamica();
-        Jogo jogoDesempilhado;
-
-        for(String dado : vetorPesquisa) {
-            pilhaDinamicaDeJogos.empilhar(j1.fazerPesquisa(dado, vetorPartida));
-        }
-
-        // Lendo a segunda parte da entrada padrao
-        int qtdeIteracao = MyIO.readInt();
-        String linha;
+        ListaLinear listaLinear = new ListaLinear(vetorPesquisa.length);
 
         int i = 0;
-        while(i < qtdeIteracao) {
-            linha = MyIO.readLine();
-
-            if(!linha.equals("D")) {
-                linha = linha.substring(2);
-                pilhaDinamicaDeJogos.empilhar(j1.fazerPesquisa(linha, vetorPartida));
-            } else {
-                jogoDesempilhado = pilhaDinamicaDeJogos.desempilhar();
-                System.out.print("(D) ");
-                jogoDesempilhado.imprimir();
-            }
-
+        for(String dado : vetorPesquisa) {
+            Jogo resultadoPesquisa = j1.fazerPesquisa(dado, vetorPartida);
+            listaLinear.inserir(resultadoPesquisa, i);
             i++;
         }
 
-        pilhaDinamicaDeJogos.mostrar();
+        // Lendo a segunda parte da entrada padrao
+        int quantidadeDeJogos = MyIO.readInt();
+
+        int j = 0;
+        while(j < quantidadeDeJogos) {
+            String linha = MyIO.readLine();
+
+            if(linha.equals("RF")) {
+
+            }
+
+            System.out.println(linha);
+
+            j++;
+        }
+
+        listaLinear.imprimir();
     }
 }
 
@@ -262,6 +260,280 @@ class Jogo {
                 + "x" + " (" + getPlacarSelecao2() + ") " + getSelecao2() + "] [" + getLocal() + "]");
     }
 }
+
+class ListaLinear {
+
+    private Jogo lista[];
+    private int primeiro;
+    private int ultimo;
+    private int tamanho;
+
+    public ListaLinear(int M) {
+
+        lista = new Jogo[M];
+        tamanho = 0;
+        primeiro = 0;
+        ultimo = 0;
+    }
+
+    public boolean listaVazia() {
+
+        boolean resp;
+
+        if (primeiro == ultimo)
+            resp = true;
+        else
+            resp = false;
+
+        return resp;
+    }
+
+    public boolean listaCheia() {
+
+        boolean resp;
+
+        if (ultimo == lista.length)
+            // if (tamanho == lista.length)
+            resp = true;
+        else
+            resp = false;
+
+        return resp;
+    }
+
+    public void inserir(Jogo novo, int posicao) throws Exception {
+
+        if (! listaCheia()) {
+            if ((posicao >= 0) && (posicao <= tamanho)) {
+                for (int i = ultimo; i > posicao; i--)
+                    lista[i] = lista[i-1];
+
+                lista[posicao] = novo;
+
+                ultimo++;
+                tamanho++;
+            } else
+                throw new Exception("Não foi possível inserir o item na lista: posição informada é inválida!");
+        } else
+            throw new Exception("Não foi possível inserir o item na lista: a lista está cheia!");
+    }
+
+    public Jogo remover(int posicao) throws Exception {
+
+        Jogo removido;
+
+        if (! listaVazia()) {
+            if ((posicao >= 0) && (posicao < tamanho)) {
+
+                removido = lista[posicao];
+                tamanho--;
+
+                for (int i = posicao; i < tamanho; i++) {
+                    lista[i] = lista[i+1];
+                }
+
+                ultimo--;
+
+                return removido;
+            } else
+                throw new Exception("Não foi possível remover o item da lista: posição informada é inválida!");
+        } else
+            throw new Exception("Não foi possível remover o item da lista: a lista está vazia!");
+    }
+
+    public void imprimir() throws Exception {
+
+        if (! listaVazia()) {
+
+            for (int i = primeiro; i < ultimo; i++) {
+                System.out.print("Posição: " + i + ": ");
+                lista[i].imprimir();
+            }
+        } else
+            throw new Exception("Não foi possível imprimir o conteúdo da lista: a lista está vazia!");
+    }
+}
+
+class ListaEncadeada {
+
+    private Celula primeiro;
+    private Celula ultimo;
+    private int tamanho;
+
+    public ListaEncadeada() {
+
+        Celula sentinela = new Celula();
+
+        primeiro = sentinela;
+        ultimo = sentinela;
+        tamanho = 0;
+    }
+
+    public boolean listaVazia() {
+
+        boolean resp;
+
+        if (primeiro == ultimo)
+            resp = true;
+        else
+            resp = false;
+
+        return resp;
+    }
+
+    public void inserir(Jogo novo, int posicao) throws Exception {
+
+        Celula anterior, novaCelula, proximaCelula;
+
+        if ((posicao >= 0) && (posicao <= tamanho)) {
+            anterior = primeiro;
+            for (int i = 0; i < posicao; i++)
+                anterior = anterior.getProximo();
+
+            novaCelula = new Celula(novo);
+
+            proximaCelula = anterior.getProximo();
+
+            anterior.setProximo(novaCelula);
+            novaCelula.setProximo(proximaCelula);
+
+            if (posicao == tamanho)  // a inserção ocorreu na última posição da lista
+                ultimo = novaCelula;
+
+            tamanho++;
+
+        } else
+            throw new Exception("Não foi possível inserir o item na lista: a posição informada é inválida!");
+    }
+
+    public Jogo remover(int posicao) throws Exception {
+
+        Celula anterior, celulaRemovida, proximaCelula;
+
+        if (! listaVazia()) {
+            if ((posicao >= 0) && (posicao < tamanho)) {
+                anterior = primeiro;
+                for (int i = 0; i < posicao; i++)
+                    anterior = anterior.getProximo();
+
+                celulaRemovida = anterior.getProximo();
+
+                proximaCelula = celulaRemovida.getProximo();
+
+                anterior.setProximo(proximaCelula);
+                celulaRemovida.setProximo(null);
+
+                if (celulaRemovida == ultimo)
+                    ultimo = anterior;
+
+                tamanho--;
+
+                return (celulaRemovida.getItem());
+            } else
+                throw new Exception("Não foi possível remover o item da lista: a posição informada é inválida!");
+        } else
+            throw new Exception("Não foi possível remover o item da lista: a lista está vazia!");
+    }
+
+    public void imprimir() throws Exception {
+
+        Celula aux;
+
+        if (! listaVazia()) {
+            System.out.println("Conteúdo da lista:");
+
+            aux = primeiro.getProximo();
+            while (aux != null) {
+                aux.getItem().imprimir();
+                aux = aux.getProximo();
+            }
+        } else
+            throw new Exception("Não foi possível imprimir o conteúdo da lista: a lista está vazia!");
+    }
+}
+
+class ListaDuplamenteEncadeada {
+
+    private Celula primeiro;
+    private Celula ultimo;
+    private int tamanho;
+
+    public ListaDuplamenteEncadeada() {
+
+        Celula sentinela;
+
+        sentinela = new Celula();
+
+        primeiro = sentinela;
+        ultimo = sentinela;
+
+        tamanho = 0;
+    }
+
+    public boolean listaVazia() {
+
+        boolean resp;
+
+        if (primeiro == ultimo)
+            resp = true;
+        else
+            resp = false;
+
+        return resp;
+    }
+
+    public void inserirFinal(Jogo novo) {
+
+        Celula novaCelula;
+
+        novaCelula = new Celula(novo);
+
+        ultimo.setProximo(novaCelula);
+        novaCelula.setAnterior(ultimo);
+
+        ultimo = novaCelula;
+
+        tamanho++;
+
+    }
+
+    public Jogo removerFinal() throws Exception {
+
+        Celula removida, penultima;
+
+        if (! listaVazia()) {
+
+            removida = ultimo;
+
+            penultima = ultimo.getAnterior();
+            penultima.setProximo(null);
+            removida.setAnterior(null);
+
+            ultimo = penultima;
+
+            tamanho--;
+
+            return (removida.getItem());
+        } else
+            throw new Exception("Não foi possível remover o último item da lista: a lista está vazia!");
+    }
+
+    public void imprimir() throws Exception {
+
+        Celula aux;
+
+        if (! listaVazia()) {
+            System.out.println("Conteúdo da lista:");
+            aux = primeiro.getProximo();
+            while (aux != null) {
+                aux.getItem().imprimir();
+                aux = aux.getProximo();
+            }
+        } else
+            throw new Exception("Não foi possível imprimir o conteúdo da lista: a lista está vazia!");
+    }
+}
+
 class FilaVetor {
     private Jogo[] fila;
     private int frente;
@@ -445,33 +717,44 @@ class PilhaVetor {
 
 class Celula {
 
-	private Jogo item;
-	private Celula proximo;
+    private Jogo item;
+    private Celula anterior;
+    private Celula proximo;
 
-	public Celula(Jogo novo) {
-  	    item = novo;
-		proximo = null;
-	}
+    public Celula(Jogo novo) {
 
-	public Celula() {
+        item = novo;
+        anterior = null;
+        proximo = null;
+    }
 
-		item = new Jogo();
-		proximo = null;
-	}
+    public Celula() {
 
-	public Jogo getItem() {
-		return item;
-	}
-	public void setItem(Jogo item) {
-		this.item = item;
-	}
+        item = new Jogo();
+        anterior = null;
+        proximo = null;
+    }
 
-	public Celula getProximo() {
-		return proximo;
-	}
-	public void setProximo(Celula proximo) {
-		this.proximo = proximo;
-	}
+    public Jogo getItem() {
+        return item;
+    }
+    public void setItem(Jogo item) {
+        this.item = item;
+    }
+
+    public Celula getProximo() {
+        return proximo;
+    }
+    public void setProximo(Celula proximo) {
+        this.proximo = proximo;
+    }
+
+    public Celula getAnterior() {
+        return anterior;
+    }
+    public void setAnterior(Celula anterior) {
+        this.anterior = anterior;
+    }
 }
 
 class FilaDinamica {
@@ -633,21 +916,42 @@ class PilhaDinamica {
 
     public void mostrar() throws Exception {
         Celula aux;
+        Celula[] dados = new Celula[1];
         int index = 0;
 
+        dados[index] = topo;
+        index++;
+
         if (! pilhaVazia()) {
-            aux = fundo.getProximo();
+
+            aux = topo.getProximo();
 
             while (aux != null) {
+                Celula[] novoVetor = new Celula[dados.length + 1];
+
+                for(int i = 0; i < dados.length; i++) {
+                    novoVetor[i] = dados[i];
+                }
+
+                dados = novoVetor;
+                dados[index] = aux;
+                index++;
 
                 aux = aux.getProximo();
-                index++;
             }
         } else {
             throw new Exception ("Não foi possível imprimir o conteúdo da fila: a fila está vazia!");
         }
-    }
 
+        int tamanho = 0;
+        for(int i = dados.length-1; i >= 0; i--) {
+            if(dados[i].getItem().getLocal() == null) continue;
+            System.out.print("[" + tamanho + "]");
+            dados[i].getItem().imprimir();
+            tamanho++;
+        }
+
+    }
 }
 
 class ArquivoTextoLeitura {
